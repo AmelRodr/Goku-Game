@@ -1,0 +1,11 @@
+body{
+    margin: 0;
+    padding: 0;
+    background: yellow;
+}
+
+body{
+    display: flex;
+    height: 100hv;
+    justify-content: space-around;
+}
