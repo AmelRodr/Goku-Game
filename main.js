@@ -3,21 +3,22 @@ var ctx = canvas.getContext('2d')
 //ctx.fillRect(0,0,50,50)
 
 //VARIABLES GLOBALES
-var aAereos2 = []
+var winner= 1;
+var beginMusic = 1
+var aAereos = []
 var cars = [];
 var interval;
 var frames = 0;
 var images = {
-    bg : 'https://orig00.deviantart.net/1c42/f/2014/158/3/2/middle_ground_city___night_by_saturnthereploid-d7lfowt.png?raw=true',
-    mono : 'https://t7.rbxcdn.com/c05fde51d58feee794b473f3a975cc1a?raw=true',
-    car : 'https://opengameart.org/sites/default/files/sprite6_0.png?raw=true',
-    boo : 'https://vignette.wikia.nocookie.net/deathbattle/images/c/ce/Majin_Buu_Sprite.png/revision/latest?cb=20160728194716?raw=true',
-    boo1 : 'http://rs933.pbsrc.com/albums/ad177/darkkingpk2/BuuGohan.png~c200?raw=true',
-    boo2 : 'https://pa1.narvii.com/6349/8dd3b408b15b30cab4623a5570abf36b9f1ffb12_hq.gif?raw=true',
-    vegeta : 'https://vignette.wikia.nocookie.net/ultradragonball/images/b/bd/Gaccu_Sprite_Right.png/revision/latest?cb=20130207014715?raw=true',
-    ichigo : 'https://cdn2.scratch.mit.edu/get_image/user/19656560_90x90.png?raw=true',
-    picoro : 'https://78.media.tumblr.com/tumblr_m3oi10rTo21r3t6jpo1_500.gif?raw=true'
-
+    bg : './images/bg.png',
+    mono : './images/mono.png',
+    car : './images/car.png',
+    boo : './images/frezer.png',
+    boo1 : './images/boo1.png',
+    boo2 : './images/boo2.png',
+    vegeta : './images/bis.png',
+    picoro : './images/jiren.png',
+    esfera : './images/uno.png'
 }
 
 
@@ -78,19 +79,28 @@ class Protagonist{
 
 class ObsTerrestres{
     constructor(){
-        this.x = 200;
-        this.y = 425;
+        this.x = canvas.width-60;
+        this.y = canvas.height/2;
         this.width = 50;
         this.height = 50;
         this.image =  new Image()
-        this.image.src = images.car
+        this.image.src = images.esfera
         this.image.onload = () =>{
             this.draw()
         }
+        this.crash = new Audio()
+        this.crash.src = "crash.mp3"
     }
     draw(){
-        this.x--
         ctx.drawImage(this.image,this.x,this.y,this.width,this.height)
+    }
+    crashWith(item){
+        var crash = (this.x < item.x + item.width) &&
+                (this.x + this.width > item.x) &&
+                (this.y < item.y + item.height) &&
+                (this.y + this.height > item.y)
+        if(crash) this.crash.play()
+        return  crash;
     }
 }//ObsTerrestres
 class ObsAereos{
@@ -109,6 +119,7 @@ class ObsAereos{
         this.x -= 3
         ctx.drawImage(this.image,this.x,this.y,this.width,this.height)
     }
+    
 }//ObsAereos
 
 // INSTANCIAS
@@ -130,11 +141,13 @@ function update (){
     generateAereos()
     drawBoos()
     checkCollitions()
+    checkCollitions1()
+    checkPlayer2()
 }
 
 function start (){
     if(interval) return
-    aAereos2 = []
+    aAereos = []
     frames = 0
     interval = setInterval(update,1000/60)
 }
@@ -142,82 +155,101 @@ function start (){
 function gameOver(){
     clearInterval(interval)
     ctx.font = '80px Avenir'
-    ctx.fillText('Game Over',50,250)
+    ctx.fillText('You Win',50,250)
     interval = null
     board.music.pause()
+    principal.x = 10 
+    winner = 0
+
+}
+function gameOver4(){
+    clearInterval(interval)
+    ctx.font = '80px Avenir'
+    ctx.fillText('You Lose',50,250)
+    interval = null
+    board.music.pause()
+    principal.x = 10
 }
 
 //FUNCIONES AUXILIARES
 
 function generateAereos(){
     var y = Math.floor(Math.random()*500)
-    var xramdomb1 = Math.floor(Math.random()*200)+60 
-    var xramdomb2 = Math.floor(Math.random()*300)+60 
-    var xramdomb3 = Math.floor(Math.random()*400)+60
-    var xramdomb4 = Math.floor(Math.random()*500)+60
-    var xramdomb5 = Math.floor(Math.random()*600)+60
+    var xramdomb1 = Math.floor(Math.random()*40)+60 
+    var xramdomb2 = Math.floor(Math.random()*80)+60 
+    var xramdomb3 = Math.floor(Math.random()*200)+60
+    var xramdomb4 = Math.floor(Math.random()*300)+60
+    var xramdomb5 = Math.floor(Math.random()*400)+60
     if(frames % xramdomb1 === 0 ){        
         var boos = new ObsAereos(y,'boo')               
-        aAereos2.push(boos)
+        aAereos.push(boos)
     }
     if(frames % xramdomb2 === 0 ){  
         var boos1 =  new ObsAereos(y,'boo1')              
-        aAereos2.push(boos1)      
+        aAereos.push(boos1)      
     }
     if(frames % xramdomb3 === 0 ){  
         var boos2 = new ObsAereos(y,'boo2')              
-        aAereos2.push(boos2)
-    }
-    if(frames % xramdomb3 === 0 ){  
-        var boos2 = new ObsAereos(y,'boo2')              
-        aAereos2.push(boos2)
+        aAereos.push(boos2)
     }
     if(frames % xramdomb4 === 0 ){  
         var vegetas = new ObsAereos(y,'vegeta')              
-        aAereos2.push(vegetas)
+        aAereos.push(vegetas)
     }
     if(frames % xramdomb5 === 0 ){  
         var picoros = new ObsAereos(y,'picoro')              
-        aAereos2.push(picoros)
+        aAereos.push(picoros)
     }
 
 
 }
 
 function drawBoos(){
-    aAereos2.forEach(function(insectos){
+    aAereos.forEach(function(insectos){
         insectos.draw()
     })
 }
 
 function checkCollitions(){
-    aAereos2.forEach(function(insectos){
-        if(principal.crashWith(insectos)){
-            gameOver()
+    aAereos.forEach(function(insectos){
+        if(principal.crashWith(insectos) && principal.x > 15){
+            principal.x -= 10
         }
     })
 }
+function checkCollitions1(){
+        if(principal.crashWith(obs)){
+            gameOver()
+        }
+}
+
+function checkPlayer2(){
+    if(winner1 === false){
+        gameOver4()
+    }
+}
 //LOS OBSERVADOReSS
 addEventListener('keydown',function(e){
-    if(e.keyCode === 87  && principal.y > 30){
+    if(e.keyCode === 87  && principal.y > 30){  //izquierda
         principal.y -=30
        // principal.x +=25
     }
-    if(e.keyCode === 68 && principal.x < 500){
+    if(e.keyCode === 68 && principal.x < 450){//pa delante
         principal.x +=30
        // principal.x +=25
     }
-    if(e.keyCode === 65 && principal.x > 30){
+    if(e.keyCode === 65 && principal.x > 30){//pa atras
         principal.x -=30
        // principal.x +=25
     }
-    if(e.keyCode === 83 && principal.y > 50){
+    if(e.keyCode === 83 && principal.y < 430){//abajo
         principal.y +=30
        // principal.x +=25
     }
-    if(e.keyCode === 13){
+    if(e.keyCode === 32){
         start()
         board.music.play()
+        beginMusic = 0
     }
    
 })

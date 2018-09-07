@@ -3,20 +3,22 @@ var ctx2 = canvas2.getContext('2d')
 //ctx2.fillRect(0,0,50,50)
 
 //VARIABLES GLOBALES
+var winner1 = true;
+var prueba = 1;
 var aAereos2 = []
 var cars2 = [];
 var interval2;
 var frames2 = 0;
 var images2 = {
-    bg : 'https://orig00.deviantart.net/1c42/f/2014/158/3/2/middle_ground_city___night_by_saturnthereploid-d7lfowt.png?raw=true',
-    mono : 'https://t7.rbxcdn.com/c05fde51d58feee794b473f3a975cc1a?raw=true',
-    car : 'https://opengameart.org/sites/default/files/sprite6_0.png?raw=true',
-    boo : 'https://vignette.wikia.nocookie.net/deathbattle/images2/c/ce/Majin_Buu_Sprite.png/revision/latest?cb=20160728194716?raw=true',
-    boo1 : 'http://rs933.pbsrc.com/albums/ad177/darkkingpk2/BuuGohan.png~c200?raw=true',
-    boo2 : 'https://pa1.narvii.com/6349/8dd3b408b15b30cab4623a5570abf36b9f1ffb12_hq.gif?raw=true',
-    vegeta : 'https://vignette.wikia.nocookie.net/ultradragonball/images2/b/bd/Gaccu_Sprite_Right.png/revision/latest?cb=20130207014715?raw=true',
-    ichigo : 'https://cdn2.scratch.mit.edu/get_image/user/19656560_90x90.png?raw=true',
-    picoro : 'https://78.media.tumblr.com/tumblr_m3oi10rTo21r3t6jpo1_500.gif?raw=true'
+    bg : './images/bg.png',
+    mono : './images/goku1.png',
+    car : './images/car.png',
+    boo : './images/frezer.png',
+    boo1 : './images/boo1.png',
+    boo2 : './images/boo2.png',
+    vegeta : './images/bis.png',
+    picoro : './images/jiren.png',
+    esfera : './images/uno.png'
 
 }
 
@@ -74,25 +76,32 @@ class Protagonist2{
                 if(crash) this.crash.play()
                 return crash;
     }
-}// Protagonist2
+}// termina Protagonist2
 
 class ObsTerrestres2{
     constructor(){
-        this.x = 200;
-        this.y = 425;
+        this.x = canvas.width-60;
+        this.y = canvas.height/2;
         this.width = 50;
         this.height = 50;
         this.image =  new Image()
-        this.image.src = images2.car
+        this.image.src = images2.esfera
         this.image.onload = () =>{
             this.draw()
         }
     }
     draw(){
-        this.x--
         ctx2.drawImage(this.image,this.x,this.y,this.width,this.height)
     }
-}//ObsTerrestres2
+    crashWith(item){    // item es cada uno de los pipes
+        return  (this.x < item.x + item.width) && // tis representa a flappy, la x de ppie mas el ancho de pipe, si 
+                (this.x + this.width > item.x) && // la x de flapy mas el ancho de flapi es mayor a pipe x
+                (this.y < item.y + item.height) && //
+                (this.y + this.height > item.y);  // esta funciona en comparacion de areas, funciona perfecto para cuadrados, si un area contiene una area, significa colision
+                if(crash) this.crash.play()
+                return crash;
+    }
+}//termina ObsTerrestres2
 class ObsAereos2{
     constructor(y,boName){
         this.x = canvas2.width -50
@@ -109,15 +118,15 @@ class ObsAereos2{
         this.x -= 3
         ctx2.drawImage(this.image,this.x,this.y,this.width,this.height)
     }
-}//ObsAereos2
+}//termina ObsAereos2
 
-// INSTANCIAS
+//************** INSTANCIAS***********************
 var board2 = new Board2()
 var principal2 = new Protagonist2()
 var obs2 = new ObsTerrestres2()
 //var boo1 = new ObsAereos2()
 
-//FUNCIONES PRINCIPALES
+//***********************FUNCIONES PRINCIPALES*****************
 
 function update2 (){
     frames2 ++
@@ -130,6 +139,8 @@ function update2 (){
     generateAereos2()
     drawBoos2()
     checkCollitions2()
+    checkCollitions3()
+    checkPlayer1()
 }
 
 function start2 (){
@@ -142,20 +153,30 @@ function start2 (){
 function gameOver2(){
     clearInterval(interval2)
     ctx2.font = '80px Avenir'
-    ctx2.fillText('Game Over',50,250)
+    ctx2.fillText('You win',50,250)
     interval2 = null
     board2.music.pause()
+    principal2.x = 10 
+    winner1 = false;
+}
+function gameOver3(){
+    clearInterval(interval2)
+    ctx2.font = '80px Avenir'
+    ctx2.fillText('You Lose',50,250)
+    interval2 = null
+    board2.music.pause()
+    principal2.x = 10
 }
 
-//FUNCIONES AUXILIARES
+//****************FUNCIONES AUXILIARES********************
 
 function generateAereos2(){
     var y = Math.floor(Math.random()*500)
-    var xramdomb1 = Math.floor(Math.random()*200)+60 
-    var xramdomb2 = Math.floor(Math.random()*300)+60 
-    var xramdomb3 = Math.floor(Math.random()*400)+60
-    var xramdomb4 = Math.floor(Math.random()*500)+60
-    var xramdomb5 = Math.floor(Math.random()*600)+60
+    var xramdomb1 = Math.floor(Math.random()*40)+60 
+    var xramdomb2 = Math.floor(Math.random()*80)+60 
+    var xramdomb3 = Math.floor(Math.random()*200)+60
+    var xramdomb4 = Math.floor(Math.random()*300)+60
+    var xramdomb5 = Math.floor(Math.random()*400)+60
     if(frames2 % xramdomb1 === 0 ){        
         var boos = new ObsAereos2(y,'boo')               
         aAereos2.push(boos)
@@ -163,10 +184,6 @@ function generateAereos2(){
     if(frames2 % xramdomb2 === 0 ){  
         var boos1 =  new ObsAereos2(y,'boo1')              
         aAereos2.push(boos1)      
-    }
-    if(frames2 % xramdomb3 === 0 ){  
-        var boos2 = new ObsAereos2(y,'boo2')              
-        aAereos2.push(boos2)
     }
     if(frames2 % xramdomb3 === 0 ){  
         var boos2 = new ObsAereos2(y,'boo2')              
@@ -192,10 +209,22 @@ function drawBoos2(){
 
 function checkCollitions2(){
     aAereos2.forEach(function(insectos){
-        if(principal2.crashWith(insectos)){
-            gameOver2()
+        if(principal2.crashWith(insectos) && principal2.x > 15){
+            principal2.x -= 10
         }
     })
+}
+
+function checkCollitions3(){
+    if(principal2.crashWith(obs2)){
+        gameOver2()
+    }
+}
+
+function checkPlayer1(){
+    if(winner === 0){
+        gameOver3()
+    }
 }
 //LOS OBSERVADOReSS
 addEventListener('keydown',function(e){
@@ -203,7 +232,7 @@ addEventListener('keydown',function(e){
         principal2.y -=30
        // principal2.x +=25
     }
-    if(e.keyCode === 39 && principal2.x < 500){
+    if(e.keyCode === 39 && principal2.x < 450){
         principal2.x +=30
        // principal2.x +=25
     }
@@ -211,13 +240,14 @@ addEventListener('keydown',function(e){
         principal2.x -=30
        // principal2.x +=25
     }
-    if(e.keyCode === 40 && principal2.y > 50){
+    if(e.keyCode === 40 && principal2.y < 430){
         principal2.y +=30
        // principal2.x +=25
     }
-    if(e.keyCode === 77){
+    if(e.keyCode === 13){
         start2()
-        board2.music.play()
+        if(beginMusic === 1){
+        board2.music.play()}
     }
    
 })
